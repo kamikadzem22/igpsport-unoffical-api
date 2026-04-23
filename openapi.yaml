@@ -123,8 +123,6 @@ paths:
                   value:
                     total: 32
                     item:
-                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
-                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/48a17da5-8a6f-4960-9d38-614ce171b8dd
                       - RideId: 10000001
                         MemberId: 123456
                         MemberName: demo_user
@@ -227,7 +225,6 @@ paths:
                         MemberName: demo_user
                         Title: Indoor cycling
                         StartTime: "2025-01-20 19:00:00"
-                        ThumbPath: /Images/common/Indoor_cycling.png
                         RideDistance: "20.00"
                         TotalAscent: "0"
                         RecordTime: 1h00min
