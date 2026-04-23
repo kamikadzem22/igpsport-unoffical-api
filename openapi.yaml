@@ -2,6 +2,9 @@ openapi: 3.0.3
 info:
   title: iGPSPORT Unofficial API
   version: 0.1.0
+  license:
+    name: ISC
+    url: https://opensource.org/license/isc-license-txt
   description: |
     OpenAPI spec generated from `Restfox_2026-02-19(1).json` and enriched with
     request/response types from this repository:
@@ -18,16 +21,22 @@ servers:
     description: OAuth host
 tags:
   - name: Auth
+    description: Authentication and token endpoints
   - name: Activities
+    description: Activity list, detail, and download endpoints
   - name: User
+    description: User profile and personal settings endpoints
   - name: Workouts
+    description: Custom workout endpoints
 paths:
   /Auth/Login:
     post:
       tags: [Auth]
+      operationId: loginWithPassword
       summary: Login with username/password (legacy session login)
       servers:
         - url: https://i.igpsport.com
+      security: []
       requestBody:
         required: true
         content:
@@ -62,10 +71,17 @@ paths:
                     Code: 403
                     Message: Invalid username or password
                     Data: null
+        '403':
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
 
   /connect/token:
     post:
       tags: [Auth]
+      operationId: getOAuthToken
       summary: OAuth token endpoint (password grant)
       description: |
         Observed in `src/api/authOauth.ts` as:
@@ -105,6 +121,7 @@ paths:
   /Activity/ActivityList:
     get:
       tags: [Activities]
+      operationId: getActivityList
       summary: Get activity list
       servers:
         - url: https://i.igpsport.com
@@ -220,6 +237,7 @@ paths:
                         RideTag: ""
                         Metric: 0
                         MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/0e85b306-a114-4185-9f51-d2b1594201ec
                       - RideId: 10000008
                         MemberId: 123456
                         MemberName: demo_user
@@ -251,8 +269,10 @@ paths:
                       - RideId: 10000010
                         MemberId: 123456
                         MemberName: demo_user
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
                         Title: Outdoor cycling
                         StartTime: "2025-01-25 09:15:00"
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/a89fc377-ebb8-4d9f-8edb-0d22f94a407c
                         RideDistance: "75.00"
                         TotalAscent: "500"
                         RecordTime: 4h00min
@@ -266,6 +286,7 @@ paths:
   /service/web-gateway/web-analyze/activity/queryActivityDetail/{activityId}:
     get:
       tags: [Activities]
+      operationId: getActivityDetail
       summary: Get activity detail by activity id
       servers:
         - url: https://prod.en.igpsport.com
@@ -364,6 +385,7 @@ paths:
   /service/web-gateway/web-analyze/activity/getDownloadUrl/{activityId}:
     get:
       tags: [Activities]
+      operationId: getActivityDownloadUrl
       summary: Get activity download URL (for FIT/etc.)
       servers:
         - url: https://prod.en.igpsport.com
@@ -388,13 +410,14 @@ paths:
                   value:
                     code: 0
                     message: success
-                    data: https://qw20191008.oss-us-west-1.aliyuncs.com/1068548-3e2d0258-bccd-45c8-9ae9-2ba4e5d0fcea
+                    data: https://example.com/files/demo-activity.fit
         '401':
           description: Unauthorized
 
   /service/mobile/api/user/userinfo:
     get:
       tags: [User]
+      operationId: getCurrentUserInfo
       summary: Get current user info
       servers:
         - url: https://prod.en.igpsport.com
@@ -459,6 +482,7 @@ paths:
   /service/mobile/api/v2/User/UserIntervalInfo:
     get:
       tags: [User]
+      operationId: getUserIntervalInfo
       summary: Get personal interval info
       description: |
         Returns the user's current training interval settings. To update FTP,
@@ -551,6 +575,7 @@ paths:
   /service/mobile/api/User/UpdatePersonalIntervalInfo:
     post:
       tags: [User]
+      operationId: updatePersonalIntervalInfo
       summary: Update personal interval info
       description: |
         Updates the user's interval settings. To set FTP, call
@@ -675,6 +700,7 @@ paths:
   /service/mobile/api/WorkOut/CustomWorkout:
     get:
       tags: [Workouts]
+      operationId: listCustomWorkouts
       summary: List custom workouts
       servers:
         - url: https://prod.en.igpsport.com
@@ -723,6 +749,7 @@ paths:
   /service/mobile/api/WorkOut/GetWorkOutDetail:
     get:
       tags: [Workouts]
+      operationId: getWorkoutDetail
       summary: Get workout detail by id
       servers:
         - url: https://prod.en.igpsport.com
@@ -807,6 +834,7 @@ paths:
   /service/mobile/api/WorkOut/EditCustomWorkOut:
     post:
       tags: [Workouts]
+      operationId: editCustomWorkout
       summary: Create or update custom workout
       description: |
         Uses typed payload from `src/api/addOrEditWorkout.ts`.
@@ -884,6 +912,7 @@ paths:
   /service/mobile/api/WorkOut/CustomWorkoutDel:
     post:
       tags: [Workouts]
+      operationId: deleteCustomWorkout
       summary: Delete custom workout
       servers:
         - url: https://prod.en.igpsport.com
@@ -1717,7 +1746,9 @@ components:
         message:
           type: string
         data:
+          type: object
           nullable: true
+          additionalProperties: true
           description: Endpoint-specific payload; not fully documented for this operation.
     DeleteWorkoutRequest:
       type: object
