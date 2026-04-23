@@ -121,7 +121,7 @@ paths:
               examples:
                 success:
                   value:
-                    total: 32
+                    total: 10
                     item:
                       - RideId: 10000001
                         MemberId: 123456
@@ -456,6 +456,222 @@ paths:
         '401':
           description: Unauthorized
 
+  /service/mobile/api/v2/User/UserIntervalInfo:
+    get:
+      tags: [User]
+      summary: Get personal interval info
+      description: |
+        Returns the user's current training interval settings. To update FTP,
+        fetch this payload first, change `data.member.ftp`, then POST the full
+        adjusted interval info payload to `/service/mobile/api/User/UpdatePersonalIntervalInfo`.
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Personal interval info wrapper (successful response)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserIntervalInfoResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: ""
+                    data:
+                      member:
+                        ftp: 220
+                        heartRateComputeMode: 1
+                        lthr: 156
+                        memberId: 123456
+                        mhr: 190
+                        quietHeartRate: 50
+                        runHeartRateComputeMode: 0
+                        runLthr: 156
+                        runMhr: 190
+                        swimHeartRateComputeMode: 0
+                        swimLthr: 156
+                        swimMhr: 190
+                      heartRate:
+                        - id: 100001
+                          start: 95
+                          end: 115
+                      heartRateLactateThreshold:
+                        - id: 100002
+                          start: 100
+                          end: 120
+                      heartRateReserve:
+                        - id: 100003
+                          start: 110
+                          end: 130
+                      power:
+                        - id: 100004
+                          start: 0
+                          end: 120
+                        - id: 100004
+                          start: 120
+                          end: 180
+                      runHeartRate:
+                        - id: 100005
+                          start: 95
+                          end: 115
+                      runHeartRateLactateThreshold:
+                        - id: 100006
+                          start: 100
+                          end: 120
+                      runHeartRateReserve:
+                        - id: 100007
+                          start: 110
+                          end: 130
+                      speed:
+                        - id: 100008
+                          start: 0
+                          end: 18
+                      cad:
+                        - id: 100009
+                          start: 80
+                          end: 100
+                      swimHeartRate:
+                        - id: 100010
+                          start: 95
+                          end: 115
+                      swimHeartRateLactateThreshold:
+                        - id: 100011
+                          start: 100
+                          end: 120
+                      swimHeartRateReserve:
+                        - id: 100012
+                          start: 110
+                          end: 130
+        '401':
+          description: Unauthorized
+
+  /service/mobile/api/User/UpdatePersonalIntervalInfo:
+    post:
+      tags: [User]
+      summary: Update personal interval info
+      description: |
+        Updates the user's interval settings. To set FTP, call
+        `/service/mobile/api/v2/User/UserIntervalInfo`, copy the response `data`,
+        change `member.ftp`, and POST the full adjusted object here. Keep the
+        zone arrays from the GET response unless intentionally changing them.
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalIntervalInfo'
+            examples:
+              setFtp:
+                summary: Set FTP to 250 W
+                value:
+                  member:
+                    ftp: 250
+                    heartRateComputeMode: 1
+                    lthr: 156
+                    memberId: 123456
+                    mhr: 190
+                    quietHeartRate: 50
+                    runHeartRateComputeMode: 0
+                    runLthr: 156
+                    runMhr: 190
+                    swimHeartRateComputeMode: 0
+                    swimLthr: 156
+                    swimMhr: 190
+                  heartRate:
+                    - id: 100001
+                      start: 95
+                      end: 115
+                  heartRateLactateThreshold:
+                    - id: 100002
+                      start: 100
+                      end: 120
+                  heartRateReserve:
+                    - id: 100003
+                      start: 110
+                      end: 130
+                  power:
+                    - id: 100004
+                      start: 0
+                      end: 125
+                    - id: 100004
+                      start: 125
+                      end: 188
+                    - id: 100004
+                      start: 188
+                      end: 225
+                    - id: 100004
+                      start: 225
+                      end: 263
+                    - id: 100004
+                      start: 263
+                      end: 300
+                    - id: 100004
+                      start: 300
+                      end: 375
+                    - id: 100004
+                      start: 375
+                      end: 2500
+                  runHeartRate:
+                    - id: 100005
+                      start: 95
+                      end: 115
+                  runHeartRateLactateThreshold:
+                    - id: 100006
+                      start: 100
+                      end: 120
+                  runHeartRateReserve:
+                    - id: 100007
+                      start: 110
+                      end: 130
+                  speed:
+                    - id: 100008
+                      start: 0
+                      end: 18
+                  cad:
+                    - id: 100009
+                      start: 80
+                      end: 100
+                  swimHeartRate:
+                    - id: 100010
+                      start: 95
+                      end: 115
+                  swimHeartRateLactateThreshold:
+                    - id: 100011
+                      start: 100
+                      end: 120
+                  swimHeartRateReserve:
+                    - id: 100012
+                      start: 110
+                      end: 130
+      responses:
+        '200':
+          description: Update result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericApiResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: ""
+                    data: null
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericApiResponse'
+        '401':
+          description: Unauthorized
+
   /service/mobile/api/WorkOut/CustomWorkout:
     get:
       tags: [Workouts]
@@ -500,7 +716,7 @@ paths:
                           workoutType: bike
                           iconPath: https://qw20191008.oss-us-west-1.aliyuncs.com/train_icon_ride_nofill.png
                           sportBigType: 1
-                          createTimestamp: 1771520878852
+                          createTimestamp: 1704067200000
         '401':
           description: Unauthorized
 
@@ -532,7 +748,7 @@ paths:
                     code: 0
                     message: ""
                     data:
-                      createTimestamp: 1771520878852
+                      createTimestamp: 1704067200000
                       id: 500001
                       title: 1h FTP 100% 2
                       iconPath: https://qw20191008.oss-us-west-1.aliyuncs.com/train_icon_ride.png
@@ -582,7 +798,7 @@ paths:
                               type: Repetition
                       allowDeletion: true
                       isOfficial: false
-                      createTime: 1771520878852
+                      createTime: 1704067200000
         '404':
           description: Workout not found
         '401':
@@ -1226,6 +1442,147 @@ components:
           type: integer
         shareUrl:
           type: string
+      additionalProperties: true
+    UserIntervalInfoResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ""
+        data:
+          $ref: '#/components/schemas/PersonalIntervalInfo'
+    PersonalIntervalInfo:
+      type: object
+      description: |
+        Full personal interval settings object. For an FTP-only update, keep the
+        current zones from `UserIntervalInfo` and change only `member.ftp`.
+      required:
+        - member
+        - heartRate
+        - heartRateLactateThreshold
+        - heartRateReserve
+        - power
+        - runHeartRate
+        - runHeartRateLactateThreshold
+        - runHeartRateReserve
+        - speed
+        - cad
+        - swimHeartRate
+        - swimHeartRateLactateThreshold
+        - swimHeartRateReserve
+      properties:
+        member:
+          $ref: '#/components/schemas/PersonalIntervalMember'
+        heartRate:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        heartRateLactateThreshold:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        heartRateReserve:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        power:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        runHeartRate:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        runHeartRateLactateThreshold:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        runHeartRateReserve:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        speed:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        cad:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        swimHeartRate:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        swimHeartRateLactateThreshold:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+        swimHeartRateReserve:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIntervalZone'
+      additionalProperties: true
+    PersonalIntervalMember:
+      type: object
+      required:
+        - ftp
+        - heartRateComputeMode
+        - lthr
+        - memberId
+        - mhr
+        - quietHeartRate
+        - runHeartRateComputeMode
+        - runLthr
+        - runMhr
+        - swimHeartRateComputeMode
+        - swimLthr
+        - swimMhr
+      properties:
+        ftp:
+          type: number
+          description: Functional threshold power in watts.
+        heartRateComputeMode:
+          type: integer
+        lthr:
+          type: integer
+          description: Lactate threshold heart rate.
+        memberId:
+          type: integer
+          format: int64
+        mhr:
+          type: integer
+          description: Maximum heart rate.
+        quietHeartRate:
+          type: integer
+          description: Resting heart rate.
+        runHeartRateComputeMode:
+          type: integer
+        runLthr:
+          type: integer
+        runMhr:
+          type: integer
+        swimHeartRateComputeMode:
+          type: integer
+        swimLthr:
+          type: integer
+        swimMhr:
+          type: integer
+      additionalProperties: true
+    PersonalIntervalZone:
+      type: object
+      required: [id, start, end]
+      properties:
+        id:
+          type: integer
+          format: int64
+        start:
+          type: number
+        end:
+          type: number
       additionalProperties: true
     CustomWorkoutListResponse:
       type: object
