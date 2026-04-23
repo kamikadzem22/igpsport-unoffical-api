@@ -1,0 +1,1571 @@
+openapi: 3.0.3
+info:
+  title: iGPSPORT Unofficial API
+  version: 0.1.0
+  description: |
+    OpenAPI spec generated from `Restfox_2026-02-19(1).json` and enriched with
+    request/response types from this repository:
+    - `src/api/authPass.ts`
+    - `src/api/authOauth.ts`
+    - `src/api/addOrEditWorkout.ts`
+    - `workout.md`
+servers:
+  - url: https://i.igpsport.com
+    description: Main web host
+  - url: https://prod.en.igpsport.com
+    description: EN API host
+  - url: https://oauth.en.igpsport.com
+    description: OAuth host
+tags:
+  - name: Auth
+  - name: Activities
+  - name: User
+  - name: Workouts
+paths:
+  /Auth/Login:
+    post:
+      tags: [Auth]
+      summary: Login with username/password (legacy session login)
+      servers:
+        - url: https://i.igpsport.com
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+            examples:
+              basic:
+                value:
+                  username: user@example.com
+                  password: "******"
+      responses:
+        '200':
+          description: Login response (token is usually returned in `Set-Cookie` as `loginToken`)
+          headers:
+            Set-Cookie:
+              description: May contain `loginToken=<token>; ...`
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+              examples:
+                success:
+                  value:
+                    Code: 0
+                    Message: Success
+                    Data: null
+                invalidCredentials:
+                  value:
+                    Code: 403
+                    Message: Invalid username or password
+                    Data: null
+
+  /connect/token:
+    post:
+      tags: [Auth]
+      summary: OAuth token endpoint (password grant)
+      description: |
+        Observed in `src/api/authOauth.ts` as:
+        `POST https://oauth.en.igpsport.com/connect/token`.
+
+        Client credentials are sent via HTTP Basic auth.
+      servers:
+        - url: https://oauth.en.igpsport.com
+      security:
+        - oauthClientBasic: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OAuthPasswordGrantRequest'
+      responses:
+        '200':
+          description: OAuth token payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthTokenSuccessResponse'
+        '400':
+          description: OAuth error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthTokenErrorResponse'
+        '401':
+          description: Unauthorized client/credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthTokenErrorResponse'
+
+  /Activity/ActivityList:
+    get:
+      tags: [Activities]
+      summary: Get activity list
+      servers:
+        - url: https://i.igpsport.com
+      security:
+        - bearerAuth: []
+        - loginTokenCookie: []
+      responses:
+        '200':
+          description: Activity list response (successful)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityListResponse'
+              examples:
+                success:
+                  value:
+                    total: 32
+                    item:
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/48a17da5-8a6f-4960-9d38-614ce171b8dd
+                      - RideId: 10000001
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-01 08:00:00"
+                        RideDistance: "12.34"
+                        TotalAscent: "120"
+                        RecordTime: 45min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/6f4cb2a5-604e-4e6f-9d8e-3a638f9eb55c
+                      - RideId: 10000002
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-03 09:30:00"
+                        RideDistance: "24.00"
+                        TotalAscent: "180"
+                        RecordTime: 1h15min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/4592778a-56e5-45ec-bc3a-348edc0a4cce
+                      - RideId: 10000003
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-05 07:45:00"
+                        RideDistance: "8.50"
+                        TotalAscent: "45"
+                        RecordTime: 28min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/74d91526-2e97-441f-aacf-6e86f2ee6ec0
+                      - RideId: 10000004
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-08 18:15:00"
+                        RideDistance: "15.20"
+                        TotalAscent: "95"
+                        RecordTime: 52min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/64726302-e9ef-4e9f-bbb6-3f51691208a3
+                      - RideId: 10000005
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-11 10:00:00"
+                        RideDistance: "32.10"
+                        TotalAscent: "210"
+                        RecordTime: 1h40min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/02d5539e-41c2-4faf-b0ca-3875cb58388e
+                      - RideId: 10000006
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-14 12:30:00"
+                        RideDistance: "48.00"
+                        TotalAscent: "300"
+                        RecordTime: 2h20min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/0e85b306-a114-4185-9f51-d2b1594201ec
+                      - RideId: 10000007
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-18 08:20:00"
+                        RideDistance: "64.50"
+                        TotalAscent: "420"
+                        RecordTime: 3h15min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                      - RideId: 10000008
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Indoor cycling
+                        StartTime: "2025-01-20 19:00:00"
+                        ThumbPath: /Images/common/Indoor_cycling.png
+                        RideDistance: "20.00"
+                        TotalAscent: "0"
+                        RecordTime: 1h00min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/e488ccd7-1817-47e4-be56-3e6ed9e257d1
+                      - RideId: 10000009
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-22 06:45:00"
+                        RideDistance: "30.00"
+                        TotalAscent: "80"
+                        RecordTime: 1h30min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+                        MemberImg: https://qw20191008.oss-accelerate.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                        ThumbPath: https://qw20191008.oss-us-west-1.aliyuncs.com/a89fc377-ebb8-4d9f-8edb-0d22f94a407c
+                      - RideId: 10000010
+                        MemberId: 123456
+                        MemberName: demo_user
+                        Title: Outdoor cycling
+                        StartTime: "2025-01-25 09:15:00"
+                        RideDistance: "75.00"
+                        TotalAscent: "500"
+                        RecordTime: 4h00min
+                        Praise: 0
+                        IsMy: 1
+                        RideTag: ""
+                        Metric: 0
+        '401':
+          description: Unauthorized
+
+  /service/web-gateway/web-analyze/activity/queryActivityDetail/{activityId}:
+    get:
+      tags: [Activities]
+      summary: Get activity detail by activity id
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Activity detail wrapper (successful response)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryActivityDetailResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: success
+                    data:
+                      rideId: 10000001
+                      memberId: 123456
+                      title: Outdoor cycling
+                      product: 301
+                      softwareVersion: "1.51"
+                      avgSpeed: 4.57
+                      avgMovingSpeed: 4.57
+                      maxSpeed: 12.5
+                      startTimeWithWeek: 2025.1.1 Wed 08:00
+                      startTime: "2025-01-01 08:00:00"
+                      movingTime: 2700
+                      endTime: "2025-01-01 08:45:00"
+                      totalMovingTime: 2700
+                      totalTime: 2700
+                      rideDistance: 12340
+                      totalAscent: 120
+                      avgAltitude: 100
+                      minAltitude: 80
+                      maxAltitude: 150
+                      calorie: 320
+                      upslopeMaxGrade: 6.5
+                      downslopeMaxGrade: -5
+                      upslopeAvgVerticalSpeed: 350
+                      upslopeMaxVerticalSpeed: 900
+                      downslopeAvgVerticalSpeed: -250
+                      downslopeMaxVerticalSpeed: -700
+                      avgTemperature: 20
+                      maxTemperature: 25
+                      upslopeDistance: 3200
+                      upslopeAvgGrade: 3.75
+                      downslopeDistance: 2500
+                      totalDescent: 110
+                      downslopeAvgGrade: -3.4
+                      exerciseType: 0
+                      manufacturer: 115
+                      avgBalance: [null, null]
+                      avgTQEffect: [null, null]
+                      avgPedSmooth: [null, null]
+                      avgPco: [null, null]
+                      spZoom:
+                        - grade: 1
+                          zoom: 0-18
+                          startNum: 0
+                          endNum: 18
+                          percentage: 99.74
+                          time: 1968
+                      upAndDownSlopeZoom:
+                        - type: 0
+                          distance: 2500
+                          percentage: 20.26
+                      fitUrl: https://example.com/file.fit
+                      status: 1
+                      errorType: 0
+                      openStatus: 0
+                      productName: iGPSPORT BSC300
+                      dataSyncStravaStatus: 1
+                      deviceInfo:
+                        deviceName: iGPSPORT BSC300
+                        deviceImage: https://example.com/device.png
+                        softwareVersion: "1.51"
+                      fitFixed: false
+                      hideStartAndEnd: false
+                      hideStartAndEndDistance: 0
+                      label: 1
+                      recordTime: 2700
+        '404':
+          description: Activity not found
+        '401':
+          description: Unauthorized
+
+  /service/web-gateway/web-analyze/activity/getDownloadUrl/{activityId}:
+    get:
+      tags: [Activities]
+      summary: Get activity download URL (for FIT/etc.)
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Download URL wrapper (successful response)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityDownloadUrlResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: success
+                    data: https://qw20191008.oss-us-west-1.aliyuncs.com/1068548-3e2d0258-bccd-45c8-9ae9-2ba4e5d0fcea
+        '401':
+          description: Unauthorized
+
+  /service/mobile/api/user/userinfo:
+    get:
+      tags: [User]
+      summary: Get current user info
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User info wrapper (successful response)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: ""
+                    data:
+                      avatar: https://qw20191008.oss-us-west-1.aliyuncs.com/2a584b39-42b6-48bc-9980-f7379962a4cb
+                      strMemberId: demo-member-id
+                      memberId: 123456
+                      nickName: demo_user
+                      sex: 0
+                      cityId: 100000
+                      cityName: Demo City
+                      provinceName: Demo Province
+                      email: demo.user@example.com
+                      height: 170
+                      weight: 70
+                      birthDate: "1990-01-01"
+                      mhr: 180
+                      lthr: 150
+                      rideTime: 36000
+                      rideDistance: 150000
+                      rideCalorie: 3200
+                      rideNum: 8
+                      timeZone: 28800
+                      bikeWeight: 12
+                      bikeWheelSize: 2096
+                      regTime: "01/01/2025 00:00:00"
+                      integral: 0
+                      vO2max: 0
+                      ftp: 220
+                      attention: 0
+                      fans: 0
+                      unitMetric: 0
+                      unitTemperature: 0
+                      unitWeight: 0
+                      unitHeight: 0
+                      unitLength: 0
+                      viewFriends: 0
+                      deviceName: iGS520,iGS630,BSC100,BSC100S,BSC200,iGS800,BSC200S,BSC300T,BiNavi,BiNavi Air,VeRun
+                      hasPassword: true
+                      isOfficial: false
+                      momentCount: 0
+                      isIdentified: false
+                      type: 1
+                      shareUrl: ""
+        '401':
+          description: Unauthorized
+
+  /service/mobile/api/WorkOut/CustomWorkout:
+    get:
+      tags: [Workouts]
+      summary: List custom workouts
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: PageIndex
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: PageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+      responses:
+        '200':
+          description: Custom workout list wrapper (successful response)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomWorkoutListResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: ""
+                    data:
+                      total: 5
+                      items:
+                        - id: 500001
+                          title: 1h FTP 100% 2
+                          totalTime: 3600
+                          workoutType: bike
+                          iconPath: https://qw20191008.oss-us-west-1.aliyuncs.com/train_icon_ride_nofill.png
+                          sportBigType: 1
+                          createTimestamp: 1771520878852
+        '401':
+          description: Unauthorized
+
+  /service/mobile/api/WorkOut/GetWorkOutDetail:
+    get:
+      tags: [Workouts]
+      summary: Get workout detail by id
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Workout detail wrapper (successful response)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutDetailResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: ""
+                    data:
+                      createTimestamp: 1771520878852
+                      id: 500001
+                      title: 1h FTP 100% 2
+                      iconPath: https://qw20191008.oss-us-west-1.aliyuncs.com/train_icon_ride.png
+                      description: 60 min at FTP
+                      totalTime: 3600
+                      workoutType: bike
+                      structure:
+                        - intensityClass: Active
+                          name: FTP steady
+                          length:
+                            unit: Second
+                            value: 3600
+                          type: Step
+                          intensityTarget:
+                            unit: PercentOfFTP
+                            value: 0
+                            minValue: 100
+                            maxValue: 100
+                          cadenceTarget:
+                            unit: Cadence
+                            value: 100
+                            minValue: 100
+                            maxValue: 100
+                        - length:
+                            unit: Repetition
+                            value: 2
+                          type: Repetition
+                          steps:
+                            - intensityClass: Active
+                              name: Active interval
+                              note: ""
+                              length:
+                                unit: Second
+                                value: 1200
+                              type: Step
+                              intensityTarget:
+                                unit: HeartRate
+                                value: 3
+                            - intensityClass: Rest
+                              name: Rest interval
+                              note: ""
+                              type: Step
+                              openDuration: "true"
+                            - length:
+                                unit: Repetition
+                                value: 3
+                              type: Repetition
+                      allowDeletion: true
+                      isOfficial: false
+                      createTime: 1771520878852
+        '404':
+          description: Workout not found
+        '401':
+          description: Unauthorized
+
+  /service/mobile/api/WorkOut/EditCustomWorkOut:
+    post:
+      tags: [Workouts]
+      summary: Create or update custom workout
+      description: |
+        Uses typed payload from `src/api/addOrEditWorkout.ts`.
+        - Create: omit `data.id` or set `data.id` to `"0"`.
+        - Update: provide existing workout id in `data.id`.
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: false
+          description: Optional workout id; observed in Restfox when updating.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddOrEditWorkoutRequest'
+            examples:
+              create:
+                value:
+                  memberId: 123456
+                  data:
+                    id: "0"
+                    title: 1h FTP 100%
+                    description: 60 min at FTP
+                    totalTime: 3600
+                    workoutType: bike
+                    sportBigType: 1
+                    structure:
+                      - type: Step
+                        intensityClass: Active
+                        name: FTP steady
+                        length:
+                          unit: Second
+                          value: 3600
+                        intensityTarget:
+                          unit: PercentOfFTP
+                          minValue: 100
+                          maxValue: 100
+                        cadenceTarget:
+                          unit: Cadence
+                          minValue: 90
+                          maxValue: 100
+                    allowDeletion: true
+                    tips: Cool
+      responses:
+        '200':
+          description: Create/update result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddOrEditWorkoutResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: success
+                    data:
+                      workoutId: 123456
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericApiResponse'
+        '401':
+          description: Unauthorized
+
+  /service/mobile/api/WorkOut/CustomWorkoutDel:
+    post:
+      tags: [Workouts]
+      summary: Delete custom workout
+      servers:
+        - url: https://prod.en.igpsport.com
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: false
+          description: Optional id in query; request body id is also used.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteWorkoutRequest'
+            examples:
+              byId:
+                value:
+                  id: 500002
+      responses:
+        '200':
+          description: Delete result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteWorkoutResponse'
+              examples:
+                success:
+                  value:
+                    code: 0
+                    message: ""
+                    data: true
+        '401':
+          description: Unauthorized
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    loginTokenCookie:
+      type: apiKey
+      in: cookie
+      name: loginToken
+    oauthClientBasic:
+      type: http
+      scheme: basic
+  schemas:
+    AuthLoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    AuthLoginResponse:
+      type: object
+      required: [Code, Message, Data]
+      properties:
+        Code:
+          type: integer
+          description: Observed values include `0` and `403`.
+        Message:
+          type: string
+        Data:
+          type: string
+          nullable: true
+    OAuthPasswordGrantRequest:
+      type: object
+      required: [grant_type, username, password, scope]
+      properties:
+        grant_type:
+          type: string
+          enum: [password]
+        username:
+          type: string
+          description: End-user login username/email
+        password:
+          type: string
+          format: password
+        scope:
+          type: string
+          description: Space-separated OAuth scopes
+          example: openid offline_access mobile.api user.api device.api activity.api IdentityServerApi
+    OAuthTokenSuccessResponse:
+      type: object
+      required: [access_token, expires_in, token_type, boundPhone]
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: integer
+        token_type:
+          type: string
+        boundPhone:
+          type: boolean
+        refresh_token:
+          type: string
+        scope:
+          type: string
+        memberId:
+          type: string
+          description: Numeric string in observed responses
+    OAuthTokenErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        error_description:
+          type: string
+    QueryActivityDetailResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/QueryActivityDetailData'
+    QueryActivityDetailData:
+      type: object
+      required:
+        - rideId
+        - memberId
+        - title
+        - product
+        - softwareVersion
+        - avgSpeed
+        - avgMovingSpeed
+        - maxSpeed
+        - startTimeWithWeek
+        - startTime
+        - movingTime
+        - endTime
+        - totalMovingTime
+        - totalTime
+        - rideDistance
+        - totalAscent
+        - avgAltitude
+        - minAltitude
+        - maxAltitude
+        - calorie
+        - upslopeMaxGrade
+        - downslopeMaxGrade
+        - upslopeAvgVerticalSpeed
+        - upslopeMaxVerticalSpeed
+        - downslopeAvgVerticalSpeed
+        - downslopeMaxVerticalSpeed
+        - avgTemperature
+        - maxTemperature
+        - upslopeDistance
+        - upslopeAvgGrade
+        - downslopeDistance
+        - totalDescent
+        - downslopeAvgGrade
+        - exerciseType
+        - manufacturer
+        - avgBalance
+        - avgTQEffect
+        - avgPedSmooth
+        - avgPco
+        - spZoom
+        - upAndDownSlopeZoom
+        - fitUrl
+        - status
+        - errorType
+        - openStatus
+        - productName
+        - dataSyncStravaStatus
+        - deviceInfo
+        - fitFixed
+        - hideStartAndEnd
+        - hideStartAndEndDistance
+        - label
+        - recordTime
+      properties:
+        rideId:
+          type: integer
+          format: int64
+        memberId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        product:
+          type: integer
+        softwareVersion:
+          type: string
+        avgSpeed:
+          type: number
+        avgMovingSpeed:
+          type: number
+        maxSpeed:
+          type: number
+        startTimeWithWeek:
+          type: string
+        startTime:
+          type: string
+        movingTime:
+          type: integer
+        endTime:
+          type: string
+        totalMovingTime:
+          type: integer
+        totalTime:
+          type: integer
+        rideDistance:
+          type: number
+        totalAscent:
+          type: number
+        avgAltitude:
+          type: number
+        minAltitude:
+          type: number
+        maxAltitude:
+          type: number
+        calorie:
+          type: number
+        upslopeMaxGrade:
+          type: number
+        downslopeMaxGrade:
+          type: number
+        upslopeAvgVerticalSpeed:
+          type: number
+        upslopeMaxVerticalSpeed:
+          type: number
+        downslopeAvgVerticalSpeed:
+          type: number
+        downslopeMaxVerticalSpeed:
+          type: number
+        avgTemperature:
+          type: number
+        maxTemperature:
+          type: number
+        upslopeDistance:
+          type: number
+        upslopeAvgGrade:
+          type: number
+        downslopeDistance:
+          type: number
+        totalDescent:
+          type: number
+        downslopeAvgGrade:
+          type: number
+        exerciseType:
+          type: integer
+        manufacturer:
+          type: integer
+        avgBalance:
+          $ref: '#/components/schemas/NullableMetricPair'
+        avgTQEffect:
+          $ref: '#/components/schemas/NullableMetricPair'
+        avgPedSmooth:
+          $ref: '#/components/schemas/NullableMetricPair'
+        avgPco:
+          $ref: '#/components/schemas/NullableMetricPair'
+        spZoom:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityZoomBucket'
+        upAndDownSlopeZoom:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityUpDownSlopeBucket'
+        fitUrl:
+          type: string
+        status:
+          type: integer
+        errorType:
+          type: integer
+        openStatus:
+          type: integer
+        productName:
+          type: string
+        dataSyncStravaStatus:
+          type: integer
+        deviceInfo:
+          $ref: '#/components/schemas/ActivityDeviceInfo'
+        fitFixed:
+          type: boolean
+        hideStartAndEnd:
+          type: boolean
+        hideStartAndEndDistance:
+          type: number
+        label:
+          type: integer
+        recordTime:
+          type: integer
+      additionalProperties: true
+    NullableMetricPair:
+      type: array
+      minItems: 2
+      maxItems: 2
+      items:
+        type: number
+        nullable: true
+    ActivityZoomBucket:
+      type: object
+      required: [grade, zoom, startNum, endNum, percentage, time]
+      properties:
+        grade:
+          type: integer
+        zoom:
+          type: string
+        startNum:
+          type: number
+        endNum:
+          type: number
+        percentage:
+          type: number
+        time:
+          type: integer
+      additionalProperties: true
+    ActivityUpDownSlopeBucket:
+      type: object
+      required: [type, distance, percentage]
+      properties:
+        type:
+          type: integer
+        distance:
+          type: number
+        percentage:
+          type: number
+      additionalProperties: true
+    ActivityDeviceInfo:
+      type: object
+      required: [deviceName, deviceImage, softwareVersion]
+      properties:
+        deviceName:
+          type: string
+        deviceImage:
+          type: string
+        softwareVersion:
+          type: string
+      additionalProperties: true
+    ActivityListResponse:
+      type: object
+      required: [total, item]
+      properties:
+        total:
+          type: integer
+          minimum: 0
+        item:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityListItem'
+    ActivityListItem:
+      type: object
+      required:
+        - RideId
+        - MemberId
+        - MemberName
+        - MemberImg
+        - Title
+        - StartTime
+        - ThumbPath
+        - RideDistance
+        - TotalAscent
+        - RecordTime
+        - Praise
+        - IsMy
+        - RideTag
+        - Metric
+      properties:
+        RideId:
+          type: integer
+          format: int64
+        MemberId:
+          type: integer
+          format: int64
+        MemberName:
+          type: string
+        MemberImg:
+          type: string
+        Title:
+          type: string
+        StartTime:
+          type: string
+        ThumbPath:
+          type: string
+        RideDistance:
+          type: string
+        TotalAscent:
+          type: string
+        RecordTime:
+          type: string
+        Praise:
+          type: integer
+        IsMy:
+          type: integer
+        RideTag:
+          type: string
+        Metric:
+          type: integer
+      additionalProperties: true
+    ActivityDownloadUrlResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: success
+        data:
+          type: string
+          format: uri
+    UserInfoResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ""
+        data:
+          $ref: '#/components/schemas/UserInfoData'
+    UserInfoData:
+      type: object
+      required:
+        - strMemberId
+        - memberId
+        - nickName
+        - avatar
+        - sex
+        - cityId
+        - cityName
+        - provinceName
+        - email
+        - height
+        - weight
+        - birthDate
+        - mhr
+        - lthr
+        - rideTime
+        - rideDistance
+        - rideCalorie
+        - rideNum
+        - timeZone
+        - bikeWeight
+        - bikeWheelSize
+        - regTime
+        - integral
+        - vO2max
+        - ftp
+        - attention
+        - fans
+        - unitMetric
+        - unitTemperature
+        - unitWeight
+        - unitHeight
+        - unitLength
+        - viewFriends
+        - deviceName
+        - hasPassword
+        - isOfficial
+        - momentCount
+        - isIdentified
+        - type
+        - shareUrl
+      properties:
+        strMemberId:
+          type: string
+        memberId:
+          type: integer
+          format: int64
+        nickName:
+          type: string
+        avatar:
+          type: string
+          format: uri
+        sex:
+          type: integer
+        cityId:
+          type: integer
+        cityName:
+          type: string
+        provinceName:
+          type: string
+        email:
+          type: string
+          format: email
+        height:
+          type: number
+        weight:
+          type: number
+        birthDate:
+          type: string
+          format: date
+        mhr:
+          type: integer
+        lthr:
+          type: integer
+        rideTime:
+          type: integer
+        rideDistance:
+          type: number
+        rideCalorie:
+          type: number
+        rideNum:
+          type: integer
+        timeZone:
+          type: integer
+        bikeWeight:
+          type: number
+        bikeWheelSize:
+          type: number
+        regTime:
+          type: string
+        integral:
+          type: integer
+        vO2max:
+          type: number
+        ftp:
+          type: number
+        attention:
+          type: integer
+        fans:
+          type: integer
+        unitMetric:
+          type: integer
+        unitTemperature:
+          type: integer
+        unitWeight:
+          type: integer
+        unitHeight:
+          type: integer
+        unitLength:
+          type: integer
+        viewFriends:
+          type: integer
+        deviceName:
+          type: string
+        hasPassword:
+          type: boolean
+        isOfficial:
+          type: boolean
+        momentCount:
+          type: integer
+        isIdentified:
+          type: boolean
+        type:
+          type: integer
+        shareUrl:
+          type: string
+      additionalProperties: true
+    CustomWorkoutListResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ""
+        data:
+          $ref: '#/components/schemas/CustomWorkoutListData'
+    CustomWorkoutListData:
+      type: object
+      required: [total, items]
+      properties:
+        total:
+          type: integer
+          minimum: 0
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomWorkoutListItem'
+    CustomWorkoutListItem:
+      type: object
+      required:
+        - id
+        - title
+        - totalTime
+        - workoutType
+        - iconPath
+        - sportBigType
+        - createTimestamp
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        totalTime:
+          type: integer
+          minimum: 0
+        workoutType:
+          type: string
+          enum: [bike, run]
+        iconPath:
+          type: string
+          nullable: true
+        sportBigType:
+          type: integer
+          enum: [1, 2]
+        createTimestamp:
+          type: integer
+          format: int64
+      additionalProperties: true
+    WorkoutDetailResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ""
+        data:
+          $ref: '#/components/schemas/WorkoutDetailData'
+    WorkoutDetailData:
+      type: object
+      required:
+        - id
+        - createTimestamp
+        - title
+        - iconPath
+        - description
+        - totalTime
+        - workoutType
+        - structure
+        - allowDeletion
+        - isOfficial
+        - createTime
+      properties:
+        id:
+          type: integer
+          format: int64
+        createTimestamp:
+          type: integer
+          format: int64
+        title:
+          type: string
+        iconPath:
+          type: string
+          nullable: true
+        description:
+          type: string
+        totalTime:
+          type: integer
+          minimum: 0
+        workoutType:
+          type: string
+          enum: [bike, run]
+        sportBigType:
+          type: integer
+          enum: [1, 2]
+        structure:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutStructure'
+        allowDeletion:
+          type: boolean
+        isOfficial:
+          type: boolean
+        createTime:
+          type: integer
+          format: int64
+        tips:
+          type: string
+        img:
+          type: string
+          nullable: true
+        workoutDay:
+          type: string
+          nullable: true
+      additionalProperties: true
+    GenericApiResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          nullable: true
+          description: Endpoint-specific payload; not fully documented for this operation.
+    DeleteWorkoutRequest:
+      type: object
+      required: [id]
+      properties:
+        id:
+          oneOf:
+            - type: integer
+              format: int64
+            - type: string
+    DeleteWorkoutResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ""
+        data:
+          type: boolean
+    AddOrEditWorkoutRequest:
+      type: object
+      required: [memberId, data]
+      properties:
+        memberId:
+          description: |
+            In this repo examples use numeric memberId.
+            Some app flows may send encrypted uid string.
+          oneOf:
+            - type: integer
+              format: int64
+            - type: string
+        data:
+          $ref: '#/components/schemas/WorkoutUpsertData'
+    AddOrEditWorkoutResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          nullable: true
+          required: [workoutId]
+          properties:
+            workoutId:
+              type: integer
+              format: int64
+    WorkoutUpsertData:
+      type: object
+      required: [title, description, totalTime, workoutType, sportBigType, structure]
+      properties:
+        id:
+          description: Existing workout id for update; use "0" or omit for create.
+          oneOf:
+            - type: string
+            - type: integer
+              format: int64
+        title:
+          type: string
+        description:
+          type: string
+        totalTime:
+          type: integer
+          description: Total workout duration in seconds
+          minimum: 0
+        workoutType:
+          type: string
+          enum: [bike, run]
+        sportBigType:
+          type: integer
+          enum: [1, 2]
+          description: 1 = bike, 2 = run
+        createTimestamp:
+          type: integer
+          format: int64
+          nullable: true
+        createTime:
+          type: integer
+          format: int64
+        workoutDay:
+          type: string
+          nullable: true
+        img:
+          type: string
+          nullable: true
+        allowDeletion:
+          type: boolean
+        tips:
+          type: string
+        iconPath:
+          type: string
+          nullable: true
+        isOfficial:
+          type: boolean
+        structure:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutStructure'
+      additionalProperties: true
+    WorkoutStructure:
+      oneOf:
+        - $ref: '#/components/schemas/WorkoutStep'
+        - $ref: '#/components/schemas/WorkoutRepetition'
+      discriminator:
+        propertyName: type
+        mapping:
+          Step: '#/components/schemas/WorkoutStep'
+          Repetition: '#/components/schemas/WorkoutRepetition'
+    WorkoutStep:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [Step]
+        intensityClass:
+          type: string
+          enum: [WarmUp, Active, CoolDown, Rest]
+        name:
+          type: string
+        note:
+          type: string
+          nullable: true
+        length:
+          $ref: '#/components/schemas/WorkoutLength'
+        intensityTarget:
+          $ref: '#/components/schemas/WorkoutIntensityTarget'
+        cadenceTarget:
+          $ref: '#/components/schemas/WorkoutCadenceTarget'
+        openDuration:
+          type: string
+          enum: ['true', 'false']
+          description: Step continues until lap/action trigger when true
+      additionalProperties: true
+    WorkoutRepetition:
+      type: object
+      required: [type, length]
+      properties:
+        type:
+          type: string
+          enum: [Repetition]
+        length:
+          $ref: '#/components/schemas/WorkoutRepetitionLength'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutStructure'
+      additionalProperties: true
+    WorkoutLength:
+      type: object
+      required: [unit, value]
+      properties:
+        unit:
+          type: string
+          enum: [Second, Meter, Kcal, Repetition]
+        value:
+          type: number
+    WorkoutRepetitionLength:
+      type: object
+      required: [unit, value]
+      properties:
+        unit:
+          type: string
+          enum: [Repetition]
+        value:
+          type: integer
+          minimum: 1
+    WorkoutIntensityTarget:
+      type: object
+      required: [unit]
+      properties:
+        unit:
+          type: string
+          enum:
+            - Speed
+            - PercentOfFTP
+            - PowerCustom
+            - HeartRateCustom
+            - Power
+            - HeartRate
+            - Active
+        value:
+          type: number
+        minValue:
+          type: number
+        maxValue:
+          type: number
+    WorkoutCadenceTarget:
+      type: object
+      required: [unit]
+      properties:
+        unit:
+          type: string
+          enum: [Cadence]
+        value:
+          type: number
+        minValue:
+          type: number
+        maxValue:
+          type: number
